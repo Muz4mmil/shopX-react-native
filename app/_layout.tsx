@@ -1,39 +1,86 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack, SplashScreen } from "expo-router";
+import { Inter_300Light, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_900Black, useFonts } from '@expo-google-fonts/inter'
+import { useEffect } from "react";
+import "./global.css";
+import { View, Text } from "react-native";
+import Feather from '@expo/vector-icons/Feather';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+SplashScreen.preventAutoHideAsync()
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+
+const HeaderText = () => {
+  return (
+    <View className="flex-row py-4">
+      <Text className="text-[28px] font-iblack">SHOP</Text>
+      <Text className="text-[28px] font-iblack text-green-600">X</Text>
+    </View>
+  )
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+
+  const [fontsLoaded, error] = useFonts({
+    Inter_300Light,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_900Black
+  })
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+    if (fontsLoaded || error) {
+      SplashScreen.hideAsync()
     }
-  }, [loaded]);
+  }, [fontsLoaded, error])
 
-  if (!loaded) {
-    return null;
+  if (!fontsLoaded && !error) {
+    return null
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShadowVisible: false,
+          headerTitle: prop => <HeaderText />,
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontFamily: "Inter_900Black",
+            fontSize: 26,
+          },
+          headerLeft: () => <Feather name="menu" size={28} color="black" />,
+          headerRight: () => <Feather name="shopping-cart" size={28} color="black" />,
+        }}
+      />
+
+      <Stack.Screen
+        name="product/[id]/index"
+        options={{
+          headerShadowVisible: false,
+          headerRight: () => <Feather name="bookmark" size={24} color="black" />,
+          headerTitle: ''
+        }}
+      />
+      <Stack.Screen
+        name="product/[id]/checkout"
+        options={{
+          headerShadowVisible: false,
+          headerTitle: prop => <HeaderText />,
+          headerTitleAlign: "center",
+          headerTitleStyle: {
+            fontFamily: "Inter_900Black",
+            fontSize: 26,
+          },
+        }}
+      />
+      <Stack.Screen
+        name="product/[id]/confirm-screen"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
   );
 }
